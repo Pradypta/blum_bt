@@ -2,24 +2,30 @@ const cron = require('cron');
 const { getBalance, claimDailyReward, claimFarmReward } = require('./api');
 
 function setupCronJob(token) {
-  const job = new cron.CronJob('0 */10 * * *', async () => {
-    console.log('🔄 Starting farming session every 10 hours...'.yellow);
+  const job = new cron.CronJob('0 */12 * * *', async () => {
+    console.log('🔄 Starting farming session every 12 hours...'.yellow);
     await claimFarmReward(token);
     console.log('🌾 Farming reward claimed!'.green);
   });
   job.start();
-  console.log('⏰ Cron job set up to run every 10 hours.'.green);
+  console.log('⏰ Cron job set up to run every 12 hours.'.green);
 }
 
 function setupBalanceCheckJob(token) {
-  const job = new cron.CronJob('* * * * *', async () => {
+  const randomHour = Math.floor(Math.random() * 8) + 1;
+  const cronPattern = `0 */${randomHour} * * *`;
+
+  const job = new cron.CronJob(cronPattern, async () => {
     const balance = await getBalance(token);
     console.log(
       `🌾 Updated farming balance: ${balance.farming.balance} BLUM`.green
     );
   });
+
   job.start();
-  console.log('⏰ Balance check job set up to run every minute.'.green);
+  console.log(
+    `⏰ Balance check job set up to run every ${randomHour} hours.`.green
+  );
 }
 
 function setupFarmRewardCron(token) {
